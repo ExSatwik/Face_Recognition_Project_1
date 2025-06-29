@@ -1,0 +1,28 @@
+name: Sync to Hugging Face Hub
+
+on:
+  push:
+    branches:
+      - main # This means: trigger this action when code is pushed to the 'main' branch
+  workflow_dispatch: # This allows you to manually run the action from GitHub
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest # This specifies the type of computer (server) GitHub uses to run this action
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3 # This step downloads your code from GitHub
+        with:
+          fetch-depth: 0 # Important for handling all of your project's history
+          lfs: true # Make sure Git LFS works if you're using it
+
+      - name: Push to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Accesses the secret token we stored earlier
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          # Add the Hugging Face Space as a "remote" location
+          git remote add hf https://YOUR_HF_USERNAME:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/Satwiksoni005/Face_Recognition_model_1
+          # Force push your code to the Hugging Face Space
+          git push --force hf main
